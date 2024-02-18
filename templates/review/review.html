@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Review</h1>
+
+<section class="review">
+    <details>
+        <summary>System prompt</summary>
+        <p>{{ config['LLM_SYSTEM_PROMPT']}}</p>
+    </details>
+</section>
+
+<form action="" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+    <section class="review">
+        <div>
+            <h2>Run a simulation or execute the prompt ?</h2>
+            <p>Select the box on the right if you want to execute the prompt to the model. Model cost usage may occur in this case.
+                <br>If you choose to simulate, the return will be a cost estimation for the prompt. No data will be submitted to the model.
+            </p>
+        </div>
+        <div>
+            <label><input type="radio" name="simulation" value="1" checked /> Simulation</label><br>
+            <label><input type="radio" name="simulation" value="0" /> Send the prompt (usage costs may occur).</label>
+        </div>
+    </section>
+
+    <section class="review">
+        <div>
+            <textarea name="prompt" placeholder="Insert your text here..."></textarea>
+        </div>
+
+        <div id="model-output"></div>
+    </section>
+
+    <section class="review">
+        <input type="submit" name="prompt_submit" value="Submit">
+    </section>
+
+</form>
+
+
+
+{% endblock %}

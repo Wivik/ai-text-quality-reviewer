@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Review result</h1>
+
+{% include('flashed_messages.html') %}
+
+<section class="review">
+    <details>
+        <summary>System prompt</summary>
+        <p>{{ config['LLM_SYSTEM_PROMPT']}}</p>
+    </details>
+</section>
+
+    <section class="review">
+        <div>
+            <textarea name="prompt" disabled placeholder="Insert your text here...">{{ result.prompt }}</textarea>
+            <p>Input tokens : <b>{{ result.input_tokens }}</b></p>
+            <p>Output tokens : <b>{{ result.output_tokens }}</b></p>
+            <p>Input tokens cost estimation : <b>{{ result.input_token_cost }}€</b> (based on {{ config['LLM_COST_PER_10K_TOKEN_INPUT'] }}€ / 10k tokens)</p>
+            <p>Ouput tokens cost estimation : <b>{{ result.output_token_cost }}€</b> (based on {{ config['LLM_COST_PER_10K_TOKEN_OUTPUT'] }}€ / 10k for a maximum of {{ config['LLM_MAX_TOKENS_PER_OUTPUT'] }} generated tokens)</p>
+        </div>
+
+        <div>
+            <p>{{ result.model_response | markdown | safe }}</p>
+
+        </div>
+
+    </section>
+
+
+
+
+
+{% endblock %}

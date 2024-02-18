@@ -1,0 +1,5 @@
+<nav>
+    <a href="/setup"{% if request.path == "/setup" %} class="active"{% endif %}>Setup</a>
+    <a href="/review"{% if request.path == "/review" %} class="active"{% endif %}>Review</a>
+    <a href="/history"{% if request.path == "/history" %} class="active"{% endif %}>History</a>
+</nav>

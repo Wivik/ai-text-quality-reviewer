@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>History</h1>
+
+{% for item in request_list %}
+<details>
+    <summary><a href="/history/{{ item.id }}">#{{ item.id }}</a></summary>
+    <section class="history-list">
+        <div>
+            <h2>Prompt</h2>
+            <p>{{ item.prompt }}</p>
+        </div>
+        <div>
+            <h2>Result</h2>
+            <p>{{ item.model_response }}</p>
+        </div>
+    </section>
+</details>
+
+
+{% endfor %}
+
+{% endblock %}

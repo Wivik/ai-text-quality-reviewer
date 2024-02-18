@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+
+        <title>Writer's Reviewing assistant</title>
+    </head>
+
+    <body>
+        <header>
+            {% include 'main_menu.html' %}
+        </header>
+        <main>
+            {% block content %} {% endblock %}
+        </main>
+        {% include 'footer.html' %}
+    </body>
+
+</html>
