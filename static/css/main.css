@@ -186,6 +186,10 @@ div.setup-field label {
     font-size: large;
 }
 
+div.setup-field select {
+    font-size: large;
+}
+
 
 /* review section */
 
@@ -214,6 +218,10 @@ section.review label {
     font-size: x-large;
 }
 
+section.review select {
+    font-size: large;
+    padding: 0.5rem;
+}
 
 /* history */
 

@@ -7,7 +7,7 @@
 <section class="review">
     <details>
         <summary>System prompt</summary>
-        <p>{{ config['LLM_SYSTEM_PROMPT']}}</p>
+        <p>{{ system_prompt }}</p>
     </details>
 </section>
 
@@ -22,6 +22,14 @@
             </p>
         </div>
         <div>
+            <h2>Project</h2>
+            <p>
+                <select name="project_id">
+                {%for project in projects%}
+                    <option value="{{ project.id }}">{{ project.name }}{% if project.default == 1 %} - Default project{%endif%}</option>
+                {%endfor%}
+                </select>
+            </p>
             <label><input type="radio" name="simulation" value="1" checked /> Simulation</label><br>
             <label><input type="radio" name="simulation" value="0" /> Send the prompt (usage costs may occur).</label>
         </div>
@@ -29,6 +37,10 @@
 
     <section class="review">
         <div>
+            <p>Instructions for the model : </p>
+            <textarea name="authors_note" placeholder="Insert some instructions for the model here : 'this book is a work in progress', 'this text is the epilogus'..." style="min-height: 100px;"></textarea>
+
+            <p>Text to process</p>
             <textarea name="prompt" placeholder="Insert your text here..."></textarea>
         </div>
 

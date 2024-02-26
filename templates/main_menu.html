@@ -1,5 +1,8 @@
 <nav>
     <a href="/setup"{% if request.path == "/setup" %} class="active"{% endif %}>Setup</a>
-    <a href="/review"{% if request.path == "/review" %} class="active"{% endif %}>Review</a>
+    <a href="/projects"{% if request.path == "/projects" %} class="active"{% endif %}>Projects</a>
+    <a href="/asisstant"{% if request.path == "/assistant" %} class="active"{% endif %}>Writing Assistant</a>
+    <a href="/review"{% if request.path == "/review" %} class="active"{% endif %}>Reviewer</a>
+    <a href="/translator"{% if request.path == "/translator" %} class="active"{% endif %}>Translator</a>
     <a href="/history"{% if request.path == "/history" %} class="active"{% endif %}>History</a>
 </nav>

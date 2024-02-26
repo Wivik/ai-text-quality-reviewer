@@ -58,6 +58,16 @@ def create_settings_database(settings_file):
                 PRIMARY KEY("id" AUTOINCREMENT)
             )
         ''')
+        c.execute('''
+            CREATE TABLE "projects" (
+                "id"	INTEGER,
+                "name"	TEXT,
+                "genres"	TEXT,
+                "description"	TEXT,
+                "default"	INTEGER DEFAULT 0,
+                PRIMARY KEY("id" AUTOINCREMENT)
+            )
+        ''')
 
 
 
@@ -121,3 +131,18 @@ def get_prompt(settings_file, prompt_id):
         return default_value
     else:
         return ret
+
+def get_all_projects(settings_file):
+    ret = run_db_select_all_query(settings_file, 'SELECT * FROM projects ORDER BY "DEFAULT" DESC, "ID" DESC', '')
+    if ret is None:
+        return
+    else:
+        return ret
+
+def get_project(settings_file, project_id):
+    ret = run_db_select_one_query(settings_file, 'SELECT * FROM projects WHERE id = ?', (project_id,))
+    if ret is None:
+        return default_value
+    else:
+        return ret
+

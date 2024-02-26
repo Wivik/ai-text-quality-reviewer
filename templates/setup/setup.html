@@ -11,15 +11,90 @@
 
     <details open>
         <summary>Usage settings</summary>
+
         <section class="setup">
             <div class="setup-item">
-                <h3>System prompt</h3>
-                <p>System prompt at the beginning of the conversation with the model. Contextualize its behavior and expectations.</p>
+                <h3>Model's lang</h3>
+                <p>In which language the model is expected to answer ?</p>
             </div>
             <div class="setup-field">
-                <textarea name="llm_system_prompt" placeholder="Insert your system prompt here...">{{ config['LLM_SYSTEM_PROMPT'] }}</textarea>
+                <select name="llm_lang">
+                    <option value="French"{%if config['LLM_LANG'] == 'French'%} selected{%endif%}>French</option>
+                    <option value="English"{%if config['LLM_LANG'] == 'English'%} selected{%endif%}>English</option>
+                </select>
             </div>
         </section>
+
+        <section class="setup">
+            <div class="setup-item">
+                <h3>Writing Assistant System prompt</h3>
+                <p>System prompt at the beginning of the conversation with the model for the Writing Assistant utiity. Contextualize its behavior and expectations.</p>
+            </div>
+            <div class="setup-field">
+                <textarea name="llm_assistant_system_prompt" placeholder="Insert your system prompt here...">{{ config['LLM_ASSISTANT_SYSTEM_PROMPT'] }}</textarea>
+            </div>
+        </section>
+
+        <section class="setup">
+            <div class="setup-item">
+                <h3>Assistant Model profile</h3>
+                <p>Define the model's creativity. Standard is recommended, but Creative can provide more interesting propositions. Strict is unadvised.</p>
+            </div>
+            <div class="setup-field">
+                <label><input type="radio" name="llm_assistant_model_profile" value="creative" {%if config['LLM_ASSISTANT_MODEL_PROFILE'] == 'creative' %}checked{%endif%} /> Creative</label><br>
+                <label><input type="radio" name="llm_assistant_model_profile" value="standard" {%if config['LLM_ASSISTANT_MODEL_PROFILE'] == 'standard' %}checked{%endif%} /> Standard</label><br>
+                <label><input type="radio" name="llm_assistant_model_profile" value="strict" {%if config['LLM_ASSISTANT_MODEL_PROFILE'] == 'strict' %}checked{%endif%} /> Strict</label>
+            </div>
+
+        </section>
+
+        <section class="setup">
+            <div class="setup-item">
+                <h3>Reviewer System prompt</h3>
+                <p>System prompt at the beginning of the conversation with the model for the Review utiity. Contextualize its behavior and expectations.</p>
+            </div>
+            <div class="setup-field">
+                <textarea name="llm_reviewer_system_prompt" placeholder="Insert your system prompt here...">{{ config['LLM_REVIEWER_SYSTEM_PROMPT'] }}</textarea>
+            </div>
+        </section>
+
+        <section class="setup">
+            <div class="setup-item">
+                <h3>Reviewer Model profile</h3>
+                <p>Define the model's creativity. Standard is recommended.</p>
+            </div>
+            <div class="setup-field">
+                <label><input type="radio" name="llm_reviewer_model_profile" value="creative" {%if config['LLM_REVIEWER_MODEL_PROFILE'] == 'creative' %}checked{%endif%} /> Creative</label><br>
+                <label><input type="radio" name="llm_reviewer_model_profile" value="standard" {%if config['LLM_REVIEWER_MODEL_PROFILE'] == 'standard' %}checked{%endif%} /> Standard</label><br>
+                <label><input type="radio" name="llm_reviewer_model_profile" value="strict" {%if config['LLM_REVIEWER_MODEL_PROFILE'] == 'strict' %}checked{%endif%} /> Strict</label>
+            </div>
+
+        </section>
+
+        <section class="setup">
+            <div class="setup-item">
+                <h3>Translator System prompt</h3>
+                <p>System prompt at the beginning of the conversation with the model for the Translator utiity. Contextualize its behavior and expectations.</p>
+            </div>
+            <div class="setup-field">
+                <textarea name="llm_translator_system_prompt" placeholder="Insert your system prompt here...">{{ config['LLM_TRANSLATOR_SYSTEM_PROMPT'] }}</textarea>
+            </div>
+        </section>
+
+        <section class="setup">
+            <div class="setup-item">
+                <h3>Translator Model profile</h3>
+                <p>Define the model's creativity. Strict is recommended.</p>
+            </div>
+            <div class="setup-field">
+                <label><input type="radio" name="llm_translator_model_profile" value="creative" {%if config['LLM_TRANSLATOR_MODEL_PROFILE'] == 'creative' %}checked{%endif%} /> Creative</label><br>
+                <label><input type="radio" name="llm_translator_model_profile" value="standard" {%if config['LLM_TRANSLATOR_MODEL_PROFILE'] == 'standard' %}checked{%endif%} /> Standard</label><br>
+                <label><input type="radio" name="llm_translator_model_profile" value="strict" {%if config['LLM_TRANSLATOR_MODEL_PROFILE'] == 'strict' %}checked{%endif%} /> Strict</label>
+            </div>
+
+        </section>
+
+
     </details>
 
     <details open>
@@ -66,19 +141,6 @@
             </div>
             <div class="setup-field">
                 <input type="number" name="llm_max_output_tokens" min="1" max="5000" value="{{ config['LLM_MAX_TOKENS_PER_OUTPUT'] }}" />
-            </div>
-
-        </section>
-
-        <section class="setup">
-            <div class="setup-item">
-                <h3>Model profile</h3>
-                <p>Define the model's creativity. Standard is recommended. Strict for translation. Creative is unadvised.</p>
-            </div>
-            <div class="setup-field">
-                <label><input type="radio" name="llm_model_profile" value="creative" {%if config['LLM_MODEL_PROFILE'] == 'creative' %}checked{%endif%} /> Creative</label><br>
-                <label><input type="radio" name="llm_model_profile" value="standard" {%if config['LLM_MODEL_PROFILE'] == 'standard' %}checked{%endif%} /> Standard</label><br>
-                <label><input type="radio" name="llm_model_profile" value="strict" {%if config['LLM_MODEL_PROFILE'] == 'strict' %}checked{%endif%} /> Strict</label>
             </div>
 
         </section>

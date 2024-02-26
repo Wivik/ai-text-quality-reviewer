@@ -14,7 +14,9 @@ import requests
 import json
 from ast import literal_eval
 
-default_system_prompt = "Tu es un relecteur de livre écrit en français qui propose des corrections de qualité : langue, syntaxe, formulation, incohérences, etc. Tu proposes des corrections dans le texte en utilisant la syntaxe markdown pour les mettre en valeur. Tu réponds en français et ne cherches pas à traduire le texte dans une autre langue."
+default_assistant_system_prompt = "Tu es l'assistant d'un écrivain, tu lui proposes des suggestions pour l'aider à améliorer son récit."
+default_reviewer_system_prompt = "Tu es un relecteur de livre écrit en français qui propose des corrections de qualité : langue, syntaxe, formulation, incohérences, etc. Tu prends en compte que le texte original utilise le marquage markdown ignore ce point. Tu réponds en français et ne cherches pas à traduire le texte dans une autre langue. Tu proposes une liste d'améliorations en justifiant les propositions. Tu ne réécris pas le texte."
+default_translator_system_prompt = "Tu es le traducteur d'un livre écrit en français vers l'anglais. Tu t'assures de bien conserver le sens des phrases et tu évites tout contresens ou réécriture qui ferait perdre le sens original."
 
 def create_app():
     # create and configure the app
@@ -29,16 +31,21 @@ def create_app():
     csrf.init_app(app)
 
     ## load initial config
-    app.config['LLM_SYSTEM_PROMPT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_SYSTEM_PROMPT', default_system_prompt)
+    app.config['LLM_ASSISTANT_SYSTEM_PROMPT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_ASSISTANT_SYSTEM_PROMPT', default_assistant_system_prompt)
+    app.config['LLM_REVIEWER_SYSTEM_PROMPT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_REVIEWER_SYSTEM_PROMPT', default_reviewer_system_prompt)
+    app.config['LLM_TRANSLATOR_SYSTEM_PROMPT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_TRANSLATOR_SYSTEM_PROMPT', default_translator_system_prompt)
     app.config['LLM_API_BASE_URL'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_API_BASE_URL', 'https://api.infomaniak.com/1/llm/')
     app.config['LLM_PRODUCT_ID'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_PRODUCT_ID', None)
     app.config['LLM_ACCESS_TOKEN'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_ACCESS_TOKEN', None)
     app.config['LLM_MAX_TOKENS_PER_OUTPUT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_MAX_TOKENS_PER_OUTPUT', '1024')
-    app.config['LLM_MODEL_PROFILE'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_MODEL_PROFILE', 'standard')
+    app.config['LLM_ASSISTANT_MODEL_PROFILE'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_ASSISTANT_MODEL_PROFILE', 'standard')
+    app.config['LLM_REVIEWER_MODEL_PROFILE'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_REVIEWER_MODEL_PROFILE', 'standard')
+    app.config['LLM_TRANSLATOR_MODEL_PROFILE'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_TRANSLATOR_MODEL_PROFILE', 'strict')
     app.config['LLM_REQUEST_TIMEOUT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_REQUEST_TIMEOUT', '60')
     app.config['LLM_COST_PER_10K_TOKEN_INPUT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_COST_PER_10K_TOKEN_INPUT', '0.005')
     app.config['LLM_COST_PER_10K_TOKEN_OUTPUT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_COST_PER_10K_TOKEN_OUTPUT', '0.015')
     app.config['LLM_MODEL_NAME'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_MODEL_NAME', 'mistralai/Mixtral-8x7B-Instruct-v0.1')
+    app.config['LLM_LANG'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_LANG', 'French')
 
     return app
 
@@ -47,16 +54,21 @@ app = create_app()
 
 ## reload application settings
 def reload_configuration():
-    app.config['LLM_SYSTEM_PROMPT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_SYSTEM_PROMPT', default_system_prompt)
+    app.config['LLM_ASSISTANT_SYSTEM_PROMPT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_ASSISTANT_SYSTEM_PROMPT', default_assistant_system_prompt)
+    app.config['LLM_REVIEWER_SYSTEM_PROMPT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_REVIEWER_SYSTEM_PROMPT', default_reviewer_system_prompt)
+    app.config['LLM_TRANSLATOR_SYSTEM_PROMPT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_TRANSLATOR_SYSTEM_PROMPT', default_translator_system_prompt)
     app.config['LLM_API_BASE_URL'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_API_BASE_URL', 'https://api.infomaniak.com/1/llm/')
     app.config['LLM_PRODUCT_ID'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_PRODUCT_ID', None)
     app.config['LLM_ACCESS_TOKEN'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_ACCESS_TOKEN', None)
     app.config['LLM_MAX_TOKENS_PER_OUTPUT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_MAX_TOKENS_PER_OUTPUT', '1024')
-    app.config['LLM_MODEL_PROFILE'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_MODEL_PROFILE', 'standard')
+    app.config['LLM_ASSISTANT_MODEL_PROFILE'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_ASSISTANT_MODEL_PROFILE', 'standard')
+    app.config['LLM_REVIEWER_MODEL_PROFILE'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_REVIEWER_MODEL_PROFILE', 'standard')
+    app.config['LLM_TRANSLATOR_MODEL_PROFILE'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_TRANSLATOR_MODEL_PROFILE', 'strict')
     app.config['LLM_REQUEST_TIMEOUT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_REQUEST_TIMEOUT', '60')
     app.config['LLM_COST_PER_10K_TOKEN_INPUT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_COST_PER_10K_TOKEN_INPUT', '0.005')
     app.config['LLM_COST_PER_10K_TOKEN_OUTPUT'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_COST_PER_10K_TOKEN_OUTPUT', '0.015')
     app.config['LLM_MODEL_NAME'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_MODEL_NAME', 'mistralai/Mixtral-8x7B-Instruct-v0.1')
+    app.config['LLM_LANG'] = db.get_setting(app.config['SETTINGS_DB'], 'LLM_LANG', 'French')
 
 ## estimate token function
 def estimate_token_count(text, model_name=app.config['LLM_MODEL_NAME']):
@@ -97,12 +109,22 @@ def calculate_cost(input_token_count, price_per_10k_tokens_input, price_per_10k_
     output_cost = sets_of_10k_output * float(price_per_10k_tokens_output)
     return input_cost, output_cost
 
-def execute_prompt(api_base_url, product_id, api_key, model_profile, system_prompt, max_new_tokens, prompt, request_timeout):
+def execute_prompt(api_base_url, product_id, api_key, model_profile, system_prompt, max_new_tokens, prompt, request_timeout, book_genres, book_description, authors_note=None):
     full_url = urljoin(api_base_url, product_id)
+    full_prompt = f"""
+    The input you should evaluate is after the ### delimitation. Before you will receive informations regarding the book that will tell you what kind of book is it.
+    Your answer must be written in {app.config['LLM_LANG']} unless the request ask your to translate the text in another language.
+    Additionnal informations :
+    Book genre : {book_genres}
+    Book description : {book_description}
+    Additional Author's instruction : {authors_note}
+    ###
+    {prompt}
+    """
     payload = {
         "messages": [
             {
-                "content": prompt,
+                "content": full_prompt,
                 "role": "user"
             }
         ], 
@@ -131,22 +153,27 @@ app.jinja_env.filters['markdown'] = markdown_filter
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template("base.html")
 
 @app.route('/setup', methods=('GET', 'POST'))
 def setup():
     if request.method == 'POST':
         ## update the settings
-        db.register_setting(app.config['SETTINGS_DB'], 'LLM_SYSTEM_PROMPT', request.form['llm_system_prompt'])
+        db.register_setting(app.config['SETTINGS_DB'], 'LLM_ASSISTANT_SYSTEM_PROMPT', request.form['llm_assistant_system_prompt'])
+        db.register_setting(app.config['SETTINGS_DB'], 'LLM_REVIEWER_SYSTEM_PROMPT', request.form['llm_reviewer_system_prompt'])
+        db.register_setting(app.config['SETTINGS_DB'], 'LLM_TRANSLATOR_SYSTEM_PROMPT', request.form['llm_translator_system_prompt'])
         db.register_setting(app.config['SETTINGS_DB'], 'LLM_API_BASE_URL', request.form['llm_api_base_url'])
         db.register_setting(app.config['SETTINGS_DB'], 'LLM_PRODUCT_ID', request.form['llm_product_id'])
         if request.form['llm_access_token'] != '':
             db.register_setting(app.config['SETTINGS_DB'], 'LLM_ACCESS_TOKEN', request.form['llm_access_token'])
         db.register_setting(app.config['SETTINGS_DB'], 'LLM_MAX_TOKENS_PER_OUTPUT', request.form['llm_max_output_tokens'])
-        db.register_setting(app.config['SETTINGS_DB'], 'LLM_MODEL_PROFILE', request.form['llm_model_profile'])
+        db.register_setting(app.config['SETTINGS_DB'], 'LLM_ASSISTANT_MODEL_PROFILE', request.form['llm_assistant_model_profile'])
+        db.register_setting(app.config['SETTINGS_DB'], 'LLM_REVIEWER_MODEL_PROFILE', request.form['llm_reviewer_model_profile'])
+        db.register_setting(app.config['SETTINGS_DB'], 'LLM_TRANSLATOR_MODEL_PROFILE', request.form['llm_translator_model_profile'])
         db.register_setting(app.config['SETTINGS_DB'], 'LLM_REQUEST_TIMEOUT', request.form['llm_request_timeout'])
         db.register_setting(app.config['SETTINGS_DB'], 'LLM_COST_PER_10K_TOKEN_INPUT', request.form['llm_cost_per_10k_token_input'])
         db.register_setting(app.config['SETTINGS_DB'], 'LLM_COST_PER_10K_TOKEN_OUTPUT', request.form['llm_cost_per_10k_token_ouput'])
+        db.register_setting(app.config['SETTINGS_DB'], 'LLM_LANG', request.form['llm_lang'])
 
         ## reload configuration
         reload_configuration()
@@ -173,7 +200,8 @@ def review():
             }
             return render_template("review/output.html", result=result)
         else:
-            payload, result = execute_prompt(api_base_url=app.config['LLM_API_BASE_URL'], product_id=app.config['LLM_PRODUCT_ID'], api_key=app.config['LLM_ACCESS_TOKEN'], model_profile=app.config['LLM_MODEL_PROFILE'], system_prompt=app.config['LLM_SYSTEM_PROMPT'], max_new_tokens=app.config['LLM_MAX_TOKENS_PER_OUTPUT'], prompt=request.form['prompt'], request_timeout=app.config['LLM_REQUEST_TIMEOUT'])
+            project = db.get_project(app.config['SETTINGS_DB'], request.form['project_id'])
+            payload, result = execute_prompt(api_base_url=app.config['LLM_API_BASE_URL'], product_id=app.config['LLM_PRODUCT_ID'], api_key=app.config['LLM_ACCESS_TOKEN'], model_profile=app.config['LLM_REVIEWER_MODEL_PROFILE'], system_prompt=app.config['LLM_REVIEWER_SYSTEM_PROMPT'], max_new_tokens=app.config['LLM_MAX_TOKENS_PER_OUTPUT'], prompt=request.form['prompt'], request_timeout=app.config['LLM_REQUEST_TIMEOUT'], book_genres=project['genres'], book_description=project['description'], authors_note=request.form['authors_note'])
 
             # payload = "{'messages': [{'content': 'test', 'role': 'user'}], 'max_new_tokens': '5000', 'system_prompt': \"Tu es un relecteur de livre écrit en français qui propose des corrections syntaxiques, grammaticales, ou reformulations. Tu ignores le caractère des guillemets ou l'apostrophe. Tu ne traduis pas le texte dans une autre langue. Tu utilises la syntaxe markdown pour pointer les corrections\", 'profile_type': 'standard'}"
 
@@ -219,7 +247,8 @@ def review():
 
             return render_template("review/output.html", result=full_result)
     else:
-        return render_template("review/review.html")
+        projects = db.get_all_projects(app.config['SETTINGS_DB'])
+        return render_template("common/prompt.html", system_prompt=app.config['LLM_REVIEWER_SYSTEM_PROMPT'], projects=projects)
 
 @app.route('/history')
 def history():
@@ -269,6 +298,13 @@ def history_detail(item_id):
     }
 
     return render_template("review/output.html", result=full_result)
+
+
+@app.route('/projects')
+def projects():
+    projects = db.get_all_projects(app.config['SETTINGS_DB'])
+
+    return render_template("projects/list.html", projects=projects)
 
 if __name__ == "__main__":
     app.run(debug=True)
